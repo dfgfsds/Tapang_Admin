@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Plus, Loader2 } from 'lucide-react';
+import { X, Plus, Loader2, Trash2Icon } from 'lucide-react';
 import Button from '../Button';
 import Input from '../Input';
 import { ProductForm } from '../../types/product';
@@ -389,11 +389,11 @@ export default function ProductModal({
             product_size: sizeItem?.product_size,
             product_size_price: sizeItem?.product_size_price,
             product_size_breadth: item?.product_variant_breadth,
-            product_size_discount: item?.product_variant_discount,
+            product_size_discount: sizeItem?.product_size_discount,
             product_size_height: item?.product_variant_height,
             product_size_length: item?.product_variant_length,
-            // product_size_sku: item?.product_variant_sku,
-            product_size_stock_quantity: item?.product_variant_stock_quantity,
+               product_size_sku: sizeItem?.product_size_sku,
+             product_size_stock_quantity: sizeItem?.product_size_stock_quantity,
             product_size_weight: item?.product_variant_weight,
             ...(productForm ? { updated_by: "vendor" } : { created_by: "vendor" }),
           })),
@@ -420,6 +420,8 @@ export default function ProductModal({
         height: data?.height,
         discount: data?.discount,
         stock_quantity: data?.stock_quantity,
+        category: data?.category,
+        subcategory: data?.subcategory,
         ...(productForm
           ? {}
           : {
@@ -456,11 +458,11 @@ export default function ProductModal({
             product_size: sizeItem?.product_size,
             product_size_price: sizeItem?.product_size_price,
             product_size_breadth: item?.product_variant_breadth,
-            product_size_discount: item?.product_variant_discount,
+            product_size_discount: sizeItem?.product_size_discount,
             product_size_height: item?.product_variant_height,
             product_size_length: item?.product_variant_length,
-            // product_size_sku: item?.product_variant_sku,
-            product_size_stock_quantity: item?.product_variant_stock_quantity,
+            product_size_sku: sizeItem?.product_size_sku,
+            product_size_stock_quantity: sizeItem?.product_size_stock_quantity,
             product_size_weight: item?.product_variant_weight,
             ...(productForm ? { updated_by: "vendor" } : { created_by: "vendor" }),
           })),
@@ -681,7 +683,8 @@ export default function ProductModal({
                       onClick={() => removeVariety(varietyIndex)}
                       className="absolute right-2 top-2 text-gray-400 hover:text-gray-500"
                     >
-                      <X className="h-5 w-5" />
+                      {/* <X className="h-5 w-5" /> */}
+                      <Trash2Icon className="h-5 w-5 text-red-500" />
                     </button>
                   </div>
 
@@ -846,13 +849,13 @@ export default function ProductModal({
                         )
                       }
                     </div>
-                    {/* <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
+                    <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
                       <Input
                         type="number"
                         label="Stock Quantity"
                         {...register(`varieties.${varietyIndex}.product_variant_stock_quantity`, { required: true })}
                       />
-                    </div> */}
+                    </div>
                   </div>
 
                   <SizeSection
