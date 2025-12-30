@@ -19,6 +19,7 @@ export default function StoreNav() {
     // { to: `/store/${id}/reviews`, icon: Star, label: 'Reviews' },
     // { to: `/store/${id}/videos`, icon: Video, label: 'Videos' },
     { to: `/store/${id}/testimonials`, icon: Star, label: 'Testimonials' },
+    { to: `/store/${id}/shopByVideos`, icon: Video, label: 'Videos' },
 
   ];
 
