@@ -24,6 +24,7 @@ import BlogsMain from './pages/store/Blogs';
 import ReviewsMain from './pages/store/Reviews';
 import Videos from './pages/store/Videos';
 import Testimonials from './pages/store/Testimonials';
+import ShopByVideos from './pages/store/ShopByVideos';
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
               <Route path="settings" element={<StoreSettings />} /> 
               <Route path="videos" element={<Videos />} />
               <Route path="testimonials" element={<Testimonials />} />
+              <Route path="shopByVideos" element={<ShopByVideos />} />
             </Route>
           </Route>
           <Route path="*" element={<ErrorPage />} />
