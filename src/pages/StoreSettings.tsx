@@ -4,7 +4,7 @@ import { useStoreStore } from '../stores/storeStore';
 import { useThemeStore } from '../stores/themeStore';
 import Button from '../components/Button';
 import Input from '../components/Input';
-import { CheckCircle, XCircle, AlertCircle, Pencil, Trash2, MapPin, Plus, Loader } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Pencil, Trash2, MapPin, Plus, Loader, Edit } from 'lucide-react';
 import { InvalidateQueryFilters, useQuery, useQueryClient } from '@tanstack/react-query';
 import { deleteAddressApi, getAddressApi, getVendorSidePolicesApi, getVendorWithSiteDetailsApi, putVendorsApi, putVendorWithSiteDetailsApi, updateSelectedAddressApi, updateVendorSidePolicesApi } from '../Api-Service/Apis';
 import { AddressForm } from '../components/AddressFrom';
@@ -387,6 +387,17 @@ export default function StoreSettings() {
           <div className="border-t pt-6">
             <div className='flex justify-between mb-3'>
               <h3 className="text-lg font-medium text-gray-900">Delivery Partner Details</h3>
+              {(vendorSiteDetails?.vendor_site_details?.delivery_partner || vendorSiteDetails?.vendor_site_details?.delivery_partner_client_id) && (
+                <button
+                  className='bg-[#967227]  text-white rounded-lg hover:bg-[#6b4f1a] px-4 py-2  flex items-center gap-2'
+                  onClick={() => {
+                    setDeliveryModal(!deliveryModal);
+                    setDevliveryEditData(vendorSiteDetails);
+                  }}
+                >
+                  <Edit />Edit Delivery Partner
+                </button>
+              )}
               {vendorSiteDetails?.vendor_site_details?.delivery_partner && vendorSiteDetails?.vendor_site_details?.delivery_partner_client_id &&
                 (
                   <button className='bg-[#967227] text-white px-4 py-2 rounded-lg hover:bg-[#6b4f1a] flex items-center gap-2'

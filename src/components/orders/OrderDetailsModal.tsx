@@ -216,7 +216,7 @@ export default function OrderDetailsModal({ order, onClose, onUpdateStatus }: Or
 
   <!-- ✅ CENTER HEADER -->
   <div class="page-header">
-    <div class="brand">Syed Gifts</div>
+    <div class="brand">TAPANG THALAIVARE</div>
     <div class="datetime">${formattedDate}</div>
   </div>
 
