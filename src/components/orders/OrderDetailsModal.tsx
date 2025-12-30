@@ -8,6 +8,7 @@ import { InvalidateQueryFilters, useQuery, useQueryClient } from '@tanstack/reac
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { baseUrl } from '../../Api-Service/ApiUrls';
+import formatDateTime from '../../lib/utils';
 
 interface OrderDetailsModalProps {
   order: any;
@@ -135,6 +136,142 @@ export default function OrderDetailsModal({ order, onClose, onUpdateStatus }: Or
   };
 
 
+
+  const generateShippingAddressHTML = () => {
+    const addr = data?.data?.consumer_address;
+
+    const now = new Date();
+    const formattedDate = now.toLocaleString("en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: #111;
+    }
+
+    /* 🔥 TOP HEADER */
+    .page-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .page-header .brand {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .page-header .datetime {
+      font-size: 11px;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    .invoice-box {
+      border: 1px solid #ccc;
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #000;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 11px;
+      text-align: center;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ✅ CENTER HEADER -->
+  <div class="page-header">
+    <div class="brand">Syed Gifts</div>
+    <div class="datetime">${formattedDate}</div>
+  </div>
+
+  <div class="invoice-box">
+    <div class="header">
+      <div class="title">Shipping Address</div>
+      <div>Order #${data?.data?.id}</div>
+    </div>
+
+    <div class="section-title">Deliver To</div>
+    <p>
+      <strong>${addr?.customer_name}</strong><br/>
+      ${addr?.address_line1}<br/>
+      ${addr?.city}, ${addr?.state} ${addr?.zipCode}<br/>
+      ${addr?.country} - ${addr?.postal_code}<br/><br/>
+      Phone: ${addr?.contact_number}<br/>
+      Email: ${addr?.email_address}
+    </p>
+
+    <div class="footer">
+      This is a system generated shipping document.
+    </div>
+  </div>
+
+</body>
+</html>
+`;
+  };
+
+
+
+  const handleDownloadShippingAddress = () => {
+    const html = generateShippingAddressHTML();
+
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = url;
+
+    document.body.appendChild(iframe);
+
+    iframe.onload = () => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+        URL.revokeObjectURL(url);
+      }, 1000);
+    };
+  };
+
+
   return (
     <div className="fixed inset-0 z-10 overflow-y-auto">
       <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
@@ -221,20 +358,20 @@ export default function OrderDetailsModal({ order, onClose, onUpdateStatus }: Or
                       <OrderStatusBadge status={data?.data?.status} />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Update Status</label>
-                      <select
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        value={data?.data?.status}
-                        onChange={(e) => handleUpadteStatus(e.target.value)}
-                      >
-                        <option value="Pending">Pending</option>
-                        <option value="Processing">Processing</option>
-                        <option value="Shipped">Shipped</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Cancelled">Cancelled</option>
-                      </select>
-                    </div>
+                    {!(data?.data?.status === 'Cancelled/Refunded') && (
+                      <div>
+                        <label className="block text-md mb-2 font-medium text-black">Update Status</label>
+                        <select
+                          className="mt-1 block w-auto p-2 rounded-md border-black border shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          value={data?.data?.status}
+                          onChange={(e) => handleUpadteStatus(e.target.value)}
+                        >
+                          {["Pending", "Shipped", "Cancelled", "Delivered", "Out For Delivery", "Cancelled/Refunded", "Processing"].map((status) => (
+                            <option key={status} value={status}>{status}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
 
                     <div>
                       <h4 className="font-medium text-sm text-gray-700">Customer Details</h4>
@@ -245,141 +382,260 @@ export default function OrderDetailsModal({ order, onClose, onUpdateStatus }: Or
                       </div>
                     </div>
 
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-700">Shipping Address</h4>
-                      <div className="mt-2 text-sm">
-                        <p>{data?.data?.consumer_address?.address_line1},{data?.data?.consumer_address?.address_line1}</p>
-                        <p>{data?.data?.consumer_address?.city}, {data?.data?.consumer_address?.state} {data?.data?.consumer_address?.zipCode}</p>
-                        <div className='flex gap-1'>
-                          <p>{data?.data?.consumer_address?.country}</p>-<p>{data?.data?.consumer_address?.postal_code}</p>
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-3">
+                      {/* HEADER */}
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold text-gray-800">
+                          Shipping Address
+                        </h4>
+
+                        <Button
+                          variant="outline"
+                          // size="sm"
+                          onClick={handleDownloadShippingAddress}
+                          className="flex items-center gap-2 text-xs"
+                        >
+                          ⬇ Download
+                        </Button>
+                      </div>
+
+                      {/* ADDRESS */}
+                      <div className="text-sm text-gray-700 leading-relaxed">
+                        <p className="font-medium text-gray-900">
+                          {data?.data?.consumer_address?.customer_name}
+                        </p>
+
+                        <p>
+                          {data?.data?.consumer_address?.address_line1}
+                          {data?.data?.consumer_address?.address_line2
+                            ? `, ${data?.data?.consumer_address?.address_line2}`
+                            : ""}
+                        </p>
+
+                        <p>
+                          {data?.data?.consumer_address?.city},{" "}
+                          {data?.data?.consumer_address?.state}{" "}
+                          {data?.data?.consumer_address?.zipCode}
+                        </p>
+
+                        <p>
+                          {data?.data?.consumer_address?.country} -{" "}
+                          {data?.data?.consumer_address?.postal_code}
+                        </p>
+
+                        {/* CONTACT */}
+                        <div className="mt-2 text-xs text-gray-500">
+                          {data?.data?.consumer_address?.contact_number}
                         </div>
                       </div>
                     </div>
 
+
                     <div>
-                      <h4 className="font-medium text-sm text-gray-700">Order Items</h4>
+                      <h4 className="font-medium text-sm text-black">Order Items</h4>
                       <div className="mt-2 divide-y divide-gray-200">
                         {data?.data?.order_items?.map((item: any) => (
                           <div key={item.id} className="py-3 flex justify-between">
                             <div className="flex items-center">
-                              {item.product?.image_urls[0] && (
-                                <img src={item?.product?.image_urls[0]} className="h-10 w-10 rounded object-cover mr-3" />
+                              {item.product_details?.image_urls[0] && (
+                                <img src={item?.product_details.image_urls[0]} className="h-10 w-10 rounded object-cover mr-3" />
                               )}
                               <div className="text-sm">
-                                <p className="font-medium">{item?.product?.name}</p>
-                                {/* <p className="text-gray-500">{item?.product?.color} - {item?.product?.size}</p> */}
+                                <p className="font-medium">{item?.product_details?.name}</p>
                               </div>
                             </div>
-                            <div className="text-sm">
-                              <p> ₹{item?.price} × {item?.quantity}</p>
-                              <p className="font-medium"> ₹{item?.price * item?.quantity}</p>
+                            <div className="text-sm text-right">
+                              <p>₹{item.price} × {item.quantity}</p>
+                              <p className="font-medium">₹{item.price * item.quantity}</p>
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="border-t pt-4">
-                      <div className="flex justify-between text-base font-medium">
-                        <p>Total</p>
-                        <p> ₹{data?.data?.total_amount}</p>
+                    {/* Total */}
+                    <div>
+                      {/* 💰 Price Summary Section */}
+                      <div className="border-t pt-4 mt-4 bg-gray-50 p-4 rounded-lg shadow-sm space-y-2">
+                        {/* Subtotal */}
+                        <div className="flex justify-between text-sm md:text-base font-medium text-gray-700">
+                          <p>Subtotal</p>
+                          <p>
+                            ₹
+                            {data?.data?.order_items
+                              ?.reduce(
+                                (acc: number, item: any) => acc + parseFloat(item.price) * item.quantity,
+                                0
+                              )
+                              ?.toFixed(2) || 0}
+                          </p>
+                        </div>
+
+
+
+                        {/* Delivery Charge */}
+                        {data?.data?.delivery_charge && (
+                          <div className="flex justify-between text-sm md:text-base text-gray-600">
+                            <p>Delivery Charge</p>
+                            <p>₹{parseFloat(data?.data?.delivery_charge || "0").toFixed(2)}</p>
+                          </div>
+                        )}
+
+
+                        {/* COD Charge */}
+                        {parseFloat(data?.data?.cod_charges || "0") > 0 && (
+                          <div className="flex justify-between text-sm md:text-base text-gray-600">
+                            <p>COD Charges</p>
+                            <p>₹{parseFloat(data?.data?.cod_charges || "0").toFixed(2)}</p>
+                          </div>
+                        )}
+
+                        {/* Delivery Discount (if available) */}
+                        {parseFloat(data?.data?.delivery_discount || "0") > 0 && (
+                          <div className="flex justify-between text-sm md:text-base text-gray-600">
+                            <p>Delivery Discount</p>
+                            <p className="text-red-500">-₹{data?.data.delivery_discount}</p>
+                          </div>
+                        )}
+                        {/* Discount */}
+                        {data?.data?.discount && data?.data?.discount > 0 && (
+                          <div className="flex justify-between text-sm md:text-base text-gray-600">
+                            <p>Discount</p>
+                            <p className="text-red-500">
+                              -₹{parseFloat(data?.data?.discount || "0").toFixed(2)}
+                            </p>
+                          </div>
+                        )}
+
+
+                        <hr className="my-2 border-gray-300" />
+
+                        {/* Total */}
+                        <div className="flex justify-between text-base md:text-lg font-semibold text-gray-900">
+                          <p>Total</p>
+                          <p>₹{parseFloat(data?.data?.total_amount || "0").toFixed(2)}</p>
+                        </div>
                       </div>
                     </div>
 
+                    {/* Payment Status */}
                     <div className="flex justify-between items-center">
-                      <span className="text-base  font-medium">Payment Status</span>
-                      <div className={`p-1 rounded-lg uppercase ${data?.data?.payment_status === 'paid' ? 'bg-green-200 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>{data?.data?.payment_status} </div>
+                      <span className="text-base font-medium">Payment Status</span>
+                      <div className={`px-3 py-1 text-sm rounded-lg uppercase font-semibold tracking-wide 
+            ${data?.data?.payment_status === 'paid' ? 'bg-green-200 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                        {data?.data?.payment_status}
+                      </div>
                     </div>
+
+
+                    {/* Dates */}
+                    <div className="flex justify-between gap-2 flex-wrap text-sm text-gray-500 mt-1 mb-2">
+                      <p className='font-bold text-black'>Created: <span className='text-gray-500'>{formatDateTime(data?.data?.created_at)}</span></p>
+                      <p className='font-bold text-black'>Updated: <span className='text-gray-500'>{formatDateTime(data?.data?.updated_at)}</span></p>
+                    </div>
+
                   </div>
                 </div>
               </div>
               {/* Shiprocket Actions */}
-              <div className="space-y-2 mt-4">
-                <h4 className="font-medium text-sm text-gray-700">Shiprocket</h4>
+              {data?.data?.delivery_partner === 'shiprocket' && data?.data?.status === 'Pending' && (
+                <>
+                  <div className="space-y-2 mt-4">
+                    <h4 className="font-medium text-sm text-gray-700">Shiprocket</h4>
 
 
-                <div className="flex items-center gap-2">
-                  <label htmlFor="pickup-date" className="text-md text-gray-600">
-                    Pickup Date
-                  </label>
-                  <input
-                    id="pickup-date"
-                    type="date"
-                    className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={pickupDate}
-                    min={minDate}
-                    max={maxDate}
-                    onChange={(e) => setPickupDate(e.target.value)}
-                  />
-                </div>
+                    <div className="flex items-center gap-2">
+                      <label htmlFor="pickup-date" className="text-md text-gray-600">
+                        Pickup Date
+                      </label>
+                      <input
+                        id="pickup-date"
+                        type="date"
+                        className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        value={pickupDate}
+                        min={minDate}
+                        max={maxDate}
+                        onChange={(e) => setPickupDate(e.target.value)}
+                      />
+                    </div>
 
-                <div className="flex flex-wrap gap-2 mt-2">
-                  <Button
-                    onClick={() => handleShiprocketAction("pickup", pickupDate)}
-                    disabled={loadingAction || data?.data?.status !== 'Pending'}
-                  >
-                    Request Pickup
-                  </Button>
-                  <Button
-                    onClick={() => handleShiprocketAction("manifest")}
-                    disabled={data?.data?.status === 'Pending' || loadingAction}
-                  >
-                    Generate Manifest
-                  </Button>
-                  <Button
-                    onClick={() => handleShiprocketAction("label")}
-                    disabled={data?.data?.status === 'Pending' || loadingAction}
-                  >
-                    Generate Label
-                  </Button>
-                  <Button
-                    onClick={() => handleShiprocketAction("invoice")}
-                    disabled={data?.data?.status === 'Pending' || loadingAction}
-                  >
-                    Generate Invoice
-                  </Button>
-                </div>
-              </div>
-
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <Button
+                        onClick={() => handleShiprocketAction("pickup", pickupDate)}
+                        disabled={loadingAction || data?.data?.status !== 'Pending'}
+                      >
+                        Request Pickup
+                      </Button>
+                      <Button
+                        onClick={() => handleShiprocketAction("manifest")}
+                        disabled={data?.data?.status === 'Pending' || loadingAction}
+                      >
+                        Generate Manifest
+                      </Button>
+                      <Button
+                        onClick={() => handleShiprocketAction("label")}
+                        disabled={data?.data?.status === 'Pending' || loadingAction}
+                      >
+                        Generate Label
+                      </Button>
+                      <Button
+                        onClick={() => handleShiprocketAction("invoice")}
+                        disabled={data?.data?.status === 'Pending' || loadingAction}
+                      >
+                        Generate Invoice
+                      </Button>
+                    </div>
+                  </div>
+                </>)}
               {/* Show Links */}
-              <div className="mt-4">
-                {pdfLinks.manifest && (
-                  <p>
-                    Manifest:{" "}
-                    <a
-                      href={pdfLinks.manifest}
-                      target="_blank"
-                      className="text-blue-600 underline"
-                    >
-                      Download
-                    </a>
-                  </p>
-                )}
-                {pdfLinks.label && (
-                  <p>
-                    Label:{" "}
-                    <a
-                      href={pdfLinks.label}
-                      target="_blank"
-                      className="text-blue-600 underline"
-                    >
-                      Download
-                    </a>
-                  </p>
-                )}
-                {pdfLinks.invoice && (
-                  <p>
-                    Invoice:{" "}
-                    <a
-                      href={pdfLinks.invoice}
-                      target="_blank"
-                      className="text-blue-600 underline"
-                    >
-                      Download
-                    </a>
-                  </p>
-                )}
-              </div>
+              {(
+                data?.data?.delivery_partner === 'shiprocket' &&
+                (
+                  data?.data?.status === 'Shipped' ||
+                  data?.data?.status === 'Out For Delivery' ||
+                  data?.data?.status === 'Processing'
+                )
+              ) && (
+                  <>
+                    <div className="mt-4">
+                      {pdfLinks.manifest && (
+                        <p>
+                          Manifest:{" "}
+                          <a
+                            href={pdfLinks.manifest}
+                            target="_blank"
+                            className="text-blue-600 underline"
+                          >
+                            Download
+                          </a>
+                        </p>
+                      )}
+                      {pdfLinks.label && (
+                        <p>
+                          Label:{" "}
+                          <a
+                            href={pdfLinks.label}
+                            target="_blank"
+                            className="text-blue-600 underline"
+                          >
+                            Download
+                          </a>
+                        </p>
+                      )}
+                      {pdfLinks.invoice && (
+                        <p>
+                          Invoice:{" "}
+                          <a
+                            href={pdfLinks.invoice}
+                            target="_blank"
+                            className="text-blue-600 underline"
+                          >
+                            Download
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                  </>)}
             </>
           )}
           <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
