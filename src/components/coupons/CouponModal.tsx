@@ -303,8 +303,27 @@ function CouponModal({ close, editData, setEditData }: any) {
                 close();
             }
         } catch (error: any) {
-            setApiError(error?.response?.data?.message || 'Failed to save coupon. Please try again.');
+            const apiData = error?.response?.data;
+
+            let errorMsg = "Failed to save coupon. Please try again.";
+
+            // 1️⃣ non_field_errors (most important)
+            if (apiData?.errors?.non_field_errors?.length > 0) {
+                errorMsg = apiData.errors.non_field_errors[0];
+            }
+            // 2️⃣ field level errors (optional future proof)
+            else if (apiData?.errors) {
+                const firstKey = Object.keys(apiData.errors)[0];
+                errorMsg = apiData.errors[firstKey][0];
+            }
+            // 3️⃣ fallback message
+            else if (apiData?.message) {
+                errorMsg = apiData.message;
+            }
+
+            setApiError(errorMsg);
         }
+
     };
 
 

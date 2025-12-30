@@ -232,6 +232,24 @@ export default function StoreSettings() {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             </div>
+            <Input
+              label="Support email"
+              type="email"
+              value={vendorSiteDetails?.vendor_other_details?.support_email}
+              // onChange={(e:any) => setName(e.target.value)}
+              onFocus={(e: any) => handleChangeSite('support_email', e.target.value)}
+
+              required
+            />
+            <Input
+              label="Support contact"
+              type="number"
+              value={vendorSiteDetails?.vendor_other_details?.support_contact}
+              // onChange={(e:any) => setName(e.target.value)}
+              onFocus={(e: any) => handleChangeSite('support_contact', e.target.value)}
+
+              required
+            />
           </div>
 
           <div className='flex justify-between mb-3'>
