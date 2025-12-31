@@ -392,8 +392,8 @@ export default function ProductModal({
             product_size_discount: sizeItem?.product_size_discount,
             product_size_height: item?.product_variant_height,
             product_size_length: item?.product_variant_length,
-               product_size_sku: sizeItem?.product_size_sku,
-             product_size_stock_quantity: sizeItem?.product_size_stock_quantity,
+            product_size_sku: sizeItem?.product_size_sku,
+            product_size_stock_quantity: sizeItem?.product_size_stock_quantity,
             product_size_weight: item?.product_variant_weight,
             ...(productForm ? { updated_by: "vendor" } : { created_by: "vendor" }),
           })),
@@ -488,16 +488,32 @@ export default function ProductModal({
         throw new Error('Something went wrong. Please try again.');
       }
     } catch (error: any) {
-      if (error?.response?.data?.error) {
-        const errObj = error.response.data.error;
+      // if (error?.response?.data?.error) {
+      //   const errObj = error.response.data.error;
 
-        // First key and its first message
-        const [key, value] = Object.entries(errObj)[0] || [];
-        const firstMessage = Array.isArray(value) ? value[0] : value;
+      //   // First key and its first message
+      //   const [key, value] = Object.entries(errObj)[0] || [];
+      //   const firstMessage = Array.isArray(value) ? value[0] : value;
 
-        setErrorMessage(`${key}: ${firstMessage}`);
+      //   setErrorMessage(`${key}: ${firstMessage}`);
+      // } else {
+      //   setErrorMessage('Something went wrong. Please try again.');
+      // }
+
+      const apiError = error?.response?.data?.error;
+
+      if (Array.isArray(apiError)) {
+        setErrorMessage(apiError[0]);
+      } else if (typeof apiError === "object" && apiError !== null) {
+        const [key, value] = Object.entries(apiError)[0] || [];
+        const message = Array.isArray(value) ? value[0] : value;
+        setErrorMessage(`${key}: ${message}`);
+
+      } else if (typeof apiError === "string") {
+        setErrorMessage(apiError);
+
       } else {
-        setErrorMessage('Something went wrong. Please try again.');
+        setErrorMessage("Something went wrong. Please try again.");
       }
 
     } finally {
