@@ -88,8 +88,8 @@ export default function Categories() {
         name: data?.name,
         ...(categoryForm && { parent: categoryForm }),
         depth: 0,
-        description: data?.description,
-        description2: data?.description2,
+        description: data?.description || '',
+        description2: data?.description2 || '',
         image: images ? images[0]?.url : '',
         banner_image: bannerImages ? bannerImages[0]?.url : '',
         created_by: 'vendor',
@@ -385,7 +385,7 @@ export default function Categories() {
                     rows={3}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   /> */}
-                  <label className="block text-sm font-bold  mb-1">About content</label>
+                  {/* <label className="block text-sm font-bold  mb-1">About content</label>
                   <Controller
                     name="description2"
                     control={control}
@@ -398,18 +398,18 @@ export default function Categories() {
                         theme="snow"
                       />
                     )}
-                  />
+                  /> */}
                 </div>
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700">Description</label>
                   <textarea
                     {...register("description")}
                     rows={3}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   />
-                </div>
+                </div> */}
                 <div className='flex justify-between'>
-                  <SingleImageUpload images={bannerImages} onChange={setBannerImages} label="Banner Image" />
+                  {/* <SingleImageUpload images={bannerImages} onChange={setBannerImages} label="Banner Image" /> */}
                   <SingleImageUpload images={images} onChange={setImages} label="Category Image" />
                 </div>
 
