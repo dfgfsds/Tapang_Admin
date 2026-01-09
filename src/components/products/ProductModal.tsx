@@ -414,22 +414,22 @@ export default function ProductModal({
         cost: data?.price,
         sku: data?.sku,
         price: data?.price,
-        weight: data?.weight,
-        length: data?.length,
-        breadth: data?.breadth,
-        height: data?.height,
+        weight: data?.weight ? data?.weight : 0,
+        length: data?.length ? data?.length : 0,
+        breadth: data?.breadth ? data?.breadth : 0,
+        height: data?.height ? data?.height : 0,
         discount: data?.discount,
         stock_quantity: data?.stock_quantity,
         category: data?.category,
-        subcategory: data?.subcategory,
+        subcategory: data?.subcategory ? data?.subcategory : null,
         ...(productForm
           ? {}
           : {
             ...(data?.category && { category: data?.category }),
             ...(data?.subcategory && { subcategory: data?.subcategory }),
           }),
-        keywords: data?.keywords,
-        meta_tax: data?.meta_tax,
+        keywords: data?.keywords ? data?.keywords : [],
+        meta_tax: data?.meta_tax ? data?.meta_tax : [],
         is_featured: !!data?.is_featured,
         ...(productForm ? { updated_by: "vendor" } : { created_by: "vendor" }),
 
@@ -439,16 +439,16 @@ export default function ProductModal({
         ),
         variant: data?.varieties?.map((item: any, index: number) => ({
           id: item?.id,
-          product_variant_breadth: item?.product_variant_breadth,
+          product_variant_breadth: item?.product_variant_breadth ? item?.product_variant_breadth : 0,
           product_variant_description: item?.product_variant_description,
           product_variant_discount: item?.product_variant_discount,
-          product_variant_height: item?.product_variant_height,
-          product_variant_length: item?.product_variant_length,
+          product_variant_height: item?.product_variant_height ? item?.product_variant_height : 0,
+          product_variant_length: item?.product_variant_length ? item?.product_variant_length : 0,
           product_variant_price: item?.product_variant_price,
           product_variant_sku: item?.product_variant_sku,
           product_variant_stock_quantity: item?.product_variant_stock_quantity,
           product_variant_title: item?.product_variant_title,
-          product_variant_weight: item?.product_variant_weight,
+          product_variant_weight: item?.product_variant_weight ? item?.product_variant_weight : 0,
           ...(productForm ? { updated_by: "vendor" } : { created_by: "vendor" }),
           variant_image_urls: (variantImages[index] || []).map((img: any) =>
             img?.url ? img.url : img
@@ -573,7 +573,7 @@ export default function ProductModal({
               </div>
 
               {/* Subcategory Dropdown */}
-              <div className="col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6">
+              {/* <div className="col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6">
                 <label className="block text-sm font-bold  mb-1">subcategory</label>
                 <Controller
                   name="subcategory"
@@ -589,7 +589,7 @@ export default function ProductModal({
                     />
                   )}
                 />
-              </div>
+              </div> */}
               {/* </div> */}
               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
                 <Input required label="Brand Name" {...register('brand_name', { required: true })} />
@@ -600,7 +600,7 @@ export default function ProductModal({
               {/* <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
                 <Input required type="number" label="Cost" {...register('cost', { required: true })} />
               </div> */}
-              <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
+              {/* <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
                 <Input required type="number" step="any" label="Weight (in KG)" {...register('weight', { required: true })} />
               </div>
               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
@@ -611,7 +611,7 @@ export default function ProductModal({
               </div>
               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
                 <Input required type="number" step="any" label="Height (in CM)" {...register('height', { required: true })} />
-              </div>
+              </div> */}
               <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
                 <Input required label="SKU" {...register('sku', { required: true })} />
               </div>
@@ -634,21 +634,21 @@ export default function ProductModal({
                   )}
                 />
               </div>
-              <div className='col-span-12 lg:col-span-12'>
+              {/* <div className='col-span-12 lg:col-span-12'>
                 <label className="block text-sm font-bold  mb-1">Meta Description</label>
                 <textarea
                   {...register("description_2", {
                     setValueAs: (value) =>
-                      typeof value === "string" ? value.trim() : "", // ✅ always return string
+                      typeof value === "string" ? value.trim() : "",
                   })}
                   rows={3}
                   placeholder="Meta Description"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
-              </div>
+              </div> */}
 
               {/* description_2 */}
-              <div className='col-span-12 lg:col-span-6'>
+              {/* <div className='col-span-12 lg:col-span-6'>
                 <label className="block text-sm font-bold  mb-1">Keywords</label>
                 <textarea
                   {...register('keywords', {
@@ -682,7 +682,7 @@ export default function ProductModal({
                   placeholder="e.g. dairy, milk"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
-              </div>
+              </div> */}
 
             </div>
 
@@ -800,8 +800,8 @@ export default function ProductModal({
                         )
                       }
                     </div>
-                    <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
-                      {/* Weight */}
+                    {/* <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
+
                       <Input
                         required
                         label="Weight (Kg)"
@@ -818,7 +818,7 @@ export default function ProductModal({
                       }
                     </div>
                     <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
-                      {/* Length */}
+                   
                       <Input
                         required
                         label="Length (Cm)"
@@ -834,7 +834,7 @@ export default function ProductModal({
                       }
                     </div>
                     <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
-                      {/* Breadth */}
+                      
                       <Input
                         required
                         label="Breadth (Cm)"
@@ -850,7 +850,7 @@ export default function ProductModal({
                       }
                     </div>
                     <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
-                      {/* Height */}
+                     
                       <Input
                         required
                         label="Height (Cm)"
@@ -864,7 +864,7 @@ export default function ProductModal({
                           </p>
                         )
                       }
-                    </div>
+                    </div> */}
                     <div className='col-span-12 sm:col-span-6 md:col-span-6 lg:col-span-6'>
                       <Input
                         type="number"
